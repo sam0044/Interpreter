@@ -3,13 +3,36 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../hash/hashtable.h"
 
 Scanner scanner;
 bool hadError = false;
+Table keywordsTable;
+
 void initScanner(const char* source){
     scanner.start = source;
     scanner.current=source;
     scanner.line=1; 
+}
+
+void initKeywordsTable(){
+    initTable(&keywordsTable);
+    makeEntry(&keywordsTable,"and",(void*)(uintptr_t)TOKEN_AND);
+    makeEntry(&keywordsTable,"class",(void*)(uintptr_t)TOKEN_CLASS);
+    makeEntry(&keywordsTable,"else",(void*)(uintptr_t)TOKEN_ELSE);
+    makeEntry(&keywordsTable,"false",(void*)(uintptr_t)TOKEN_FALSE);
+    makeEntry(&keywordsTable,"for",(void*)(uintptr_t)TOKEN_FOR);
+    makeEntry(&keywordsTable,"fun",(void*)(uintptr_t)TOKEN_FUN);
+    makeEntry(&keywordsTable,"if",(void*)(uintptr_t)TOKEN_IF);
+    makeEntry(&keywordsTable,"nil",(void*)(uintptr_t)TOKEN_NIL);
+    makeEntry(&keywordsTable,"or",(void*)(uintptr_t)TOKEN_OR);
+    makeEntry(&keywordsTable,"print",(void*)(uintptr_t)TOKEN_PRINT);
+    makeEntry(&keywordsTable,"return",(void*)(uintptr_t)TOKEN_RETURN);
+    makeEntry(&keywordsTable,"super",(void*)(uintptr_t)TOKEN_SUPER);
+    makeEntry(&keywordsTable,"this",(void*)(uintptr_t)TOKEN_THIS);
+    makeEntry(&keywordsTable,"true",(void*)(uintptr_t)TOKEN_TRUE);
+    makeEntry(&keywordsTable,"var",(void*)(uintptr_t)TOKEN_VAR);
+    makeEntry(&keywordsTable,"while",(void*)(uintptr_t)TOKEN_WHILE);
 
 }
 
@@ -22,6 +45,24 @@ void initTokenList(TokenList* list){
         return;
     }
 }
+
+Token makeToken(TokenType type, bool trimQuotes){
+    Token token;
+    token.type=type;
+    const char* start = scanner.start;
+    const char* current = scanner.current;
+    if(trimQuotes && type==TOKEN_STRING){
+        start++;
+        current--;
+    }
+    token.length=current-start;
+    token.lexeme = (char*)malloc(sizeof(char)*token.length+1);
+    memcpy(token.lexeme,start,token.length);
+    ((char*)token.lexeme)[token.length]='\0';
+    token.line=scanner.line;
+    return token;
+}
+
 void addToken(TokenList* list, Token token){
     if (list->count>=list->capacity){
         list->capacity*=2;
@@ -35,27 +76,6 @@ void addToken(TokenList* list, Token token){
     list->tokens[list->count++] = token;
 }
 
-void freeTokenList(TokenList* list){
-    for (int i = 0; i < list->count; i++) {
-        free((void*)list->tokens[i].lexeme);
-    }
-    free(list->tokens);
-    list->tokens= NULL;
-    list->count=0;
-    list->capacity=0;
-}
-
-Token makeToken(TokenType type){
-    Token token;
-    token.type=type;
-    token.length=scanner.current-scanner.start;
-    token.lexeme = (char*)malloc(sizeof(char)*token.length+1);
-    memcpy(token.lexeme,scanner.start,token.length);
-    ((char*)token.lexeme)[token.length]='\0';
-    token.line=scanner.line;
-    return token;
-}
-
 TokenList scanTokens(){
     TokenList list;
     initTokenList(&list);
@@ -67,53 +87,53 @@ TokenList scanTokens(){
                 string(&list);
                 break;
             case '(': 
-                addToken(&list,makeToken(TOKEN_LEFT_PAREN));
+                addToken(&list,makeToken(TOKEN_LEFT_PAREN, false));
                 break;
             case ')': 
-                addToken(&list,makeToken(TOKEN_RIGHT_PAREN)); 
+                addToken(&list,makeToken(TOKEN_RIGHT_PAREN, false)); 
                 break;
             case '{': 
-                addToken(&list,makeToken(TOKEN_LEFT_BRACE)); 
+                addToken(&list,makeToken(TOKEN_LEFT_BRACE, false)); 
                 break;
             case '}': 
-                addToken(&list,makeToken(TOKEN_RIGHT_BRACE)); 
+                addToken(&list,makeToken(TOKEN_RIGHT_BRACE, false)); 
                 break;
             case ',': 
-                addToken(&list,makeToken(TOKEN_COMMA)); 
+                addToken(&list,makeToken(TOKEN_COMMA, false)); 
                 break;
             case '.': 
-                addToken(&list,makeToken(TOKEN_DOT)); 
+                addToken(&list,makeToken(TOKEN_DOT, false)); 
                 break;
             case '-': 
-                addToken(&list,makeToken(TOKEN_MINUS)); 
+                addToken(&list,makeToken(TOKEN_MINUS, false)); 
                 break;
             case '+': 
-                addToken(&list,makeToken(TOKEN_PLUS)); 
+                addToken(&list,makeToken(TOKEN_PLUS, false)); 
                 break;
             case ';': 
-                addToken(&list,makeToken(TOKEN_SEMICOLON)); 
+                addToken(&list,makeToken(TOKEN_SEMICOLON, false)); 
                 break;
             case '*': 
-                addToken(&list,makeToken(TOKEN_STAR)); 
+                addToken(&list,makeToken(TOKEN_STAR, false)); 
                 break;
             case '!':
-                match('=') ? addToken(&list,makeToken(TOKEN_BANG_EQUAL)): addToken(&list,makeToken(TOKEN_BANG));
+                match('=') ? addToken(&list,makeToken(TOKEN_BANG_EQUAL, false)): addToken(&list,makeToken(TOKEN_BANG, false));
                 break;
             case '>':
-                match('=') ? addToken(&list,makeToken(TOKEN_GREATER_EQUAL)): addToken(&list,makeToken(TOKEN_GREATER));
+                match('=') ? addToken(&list,makeToken(TOKEN_GREATER_EQUAL, false)): addToken(&list,makeToken(TOKEN_GREATER, false));
                 break;
             case '<':
-                match('=') ? addToken(&list,makeToken(TOKEN_LESS_EQUAL)): addToken(&list,makeToken(TOKEN_LESS));
+                match('=') ? addToken(&list,makeToken(TOKEN_LESS_EQUAL, false)): addToken(&list,makeToken(TOKEN_LESS, false));
                 break;
             case '=':
-                match('=') ? addToken(&list,makeToken(TOKEN_EQUAL_EQUAL)): addToken(&list,makeToken(TOKEN_EQUAL));
+                match('=') ? addToken(&list,makeToken(TOKEN_EQUAL_EQUAL, false)): addToken(&list,makeToken(TOKEN_EQUAL, false));
                 break;
             case '/':
                 if(match('/')){
                     while(peek()!='\n' && peek()!='\0') advance();
                 }
                 else{
-                    addToken(&list,makeToken(TOKEN_SLASH));
+                    addToken(&list,makeToken(TOKEN_SLASH, false));
                 }
             case '\r':
             case '\t':
@@ -136,8 +156,19 @@ TokenList scanTokens(){
         }
     }
     scanner.start = scanner.current;
-    addToken(&list, makeToken(TOKEN_EOF));
+    addToken(&list, makeToken(TOKEN_EOF, false));
+    freeTable(&keywordsTable);
     return list;
+}
+
+void freeTokenList(TokenList* list){
+    for (int i = 0; i < list->count; i++) {
+        free((void*)list->tokens[i].lexeme);
+    }
+    free(list->tokens);
+    list->tokens= NULL;
+    list->count=0;
+    list->capacity=0;
 }
 
 static char peek(){
@@ -180,7 +211,7 @@ static void string(TokenList* list){
     }
     else{
         advance();
-        addToken(list,makeToken(TOKEN_STRING));
+        addToken(list,makeToken(TOKEN_STRING, true));
     }
 }
 
@@ -190,12 +221,23 @@ static void number(TokenList* list){
         advance();
         while(isDigit(peek()))advance();
     }
-    addToken(list,makeToken(TOKEN_NUMBER));
+    addToken(list,makeToken(TOKEN_NUMBER, false));
 }
 
 static void identifier(TokenList* list){
     while(isAlphaNumeric(peek()))advance();
-    addToken(list,makeToken(TOKEN_IDENTIFIER));
+    size_t keyLength = scanner.current-scanner.start;
+    char* text = malloc(keyLength + 1);
+    if (!text) {
+        fprintf(stderr, "Failed to allocate memory for lexeme\n");
+        return;
+    }
+    memcpy(text, scanner.start, keyLength);
+    text[keyLength] = '\0';
+    void* tokenTypePtr = getEntry(&keywordsTable,text);
+    TokenType type = tokenTypePtr != NULL ? (TokenType)(uintptr_t)tokenTypePtr : TOKEN_IDENTIFIER;
+    addToken(list,makeToken(type,false));
+    free(text);
 }
 
 static bool isDigit(char c){

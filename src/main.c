@@ -80,6 +80,7 @@ static void runPrompt(){
 
 static void run(char* source){
     initScanner(source);
+    initKeywordsTable();
     TokenList list = scanTokens();
     for(int i=0;i<list.count;i++){
         Token token = list.tokens[i];

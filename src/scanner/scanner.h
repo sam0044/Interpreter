@@ -1,6 +1,7 @@
 #ifndef SCANNER_H
 #define SCANNER_H
 #include <stddef.h>
+#include <stdbool.h>
 
 extern bool hadError;
 typedef enum TokenType{
@@ -35,8 +36,8 @@ typedef struct{
 
 typedef struct{
     Token* tokens;
-    int count;
-    int capacity;
+    size_t count;
+    size_t capacity;
 } TokenList;
 
 typedef struct{
@@ -48,12 +49,13 @@ typedef struct{
 
 // token list for storing tokens
 void initTokenList(TokenList* list);
-Token makeToken(TokenType type);
+Token makeToken(TokenType type, bool trimQuotes);
 void addToken(TokenList* list, Token token);
 void freeTokenList(TokenList* list);
 
 // scanner functions
 void initScanner(const char* source);
+void initKeywordsTable();
 TokenList scanTokens();
 
 // helper functions for lexemes
