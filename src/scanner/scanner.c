@@ -135,6 +135,7 @@ TokenList scanTokens(){
                 else{
                     addToken(&list,makeToken(TOKEN_SLASH, false));
                 }
+                break;
             case '\r':
             case '\t':
             case ' ':
