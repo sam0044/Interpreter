@@ -178,7 +178,7 @@ void *getEntry(Table* table, char* key){
 }
 void freeTable(Table* table){
     for(size_t i=0;i<table->capacity;i++){
-        if(table->buckets[i].key!=NULL){
+        if(table->buckets[i].state==OCCUPIED){
             free(table->buckets[i].key->key);
             free(table->buckets[i].key);
         }
