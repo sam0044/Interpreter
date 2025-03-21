@@ -1,1 +1,1 @@
-and helloiam print "1234"
+-123 * (45.67)
