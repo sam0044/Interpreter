@@ -9,6 +9,20 @@ Scanner scanner;
 bool hadError = false;
 Table keywordsTable;
 
+// Forward declarations of static functions
+static char peek();
+static char peekNext();
+static char advance();
+static bool match(char expected);
+static void error(int line, char* message);
+static void report(int line, char* where, char* message);
+static void string(TokenList* list);
+static void number(TokenList* list);
+static void identifier(TokenList* list);
+static bool isDigit(char c);
+static bool isAlpha(char c);
+static bool isAlphaNumeric(char c);
+
 void initScanner(const char* source){
     scanner.start = source;
     scanner.current=source;
@@ -197,7 +211,7 @@ static void error(int line, char* message){
 }
 
 static void report(int line, char* where, char* message){
-    fprintf(stderr,"[line %d] Error: %s %s",line,where,message);
+    fprintf(stderr,"[line %d] Error: %s %s\n",line,where,message);
     hadError=true;
 }
 

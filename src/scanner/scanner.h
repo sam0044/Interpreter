@@ -58,25 +58,5 @@ void initScanner(const char* source);
 void initKeywordsTable();
 TokenList scanTokens();
 
-// helper functions for lexemes
-static char peek();
-static char peekNext();
-static bool match(char expected);
-static char advance();
-
-// error reporting functions
-static void error(int line, char* message);
-static void report(int line, char* where, char* message);
-
-// string literal
-static void string(TokenList* list);
-
-// number literal
-static void number(TokenList* list);
-static void identifier(TokenList* list);
-static bool isDigit(char number);
-static bool isAlpha(char c);
-static bool isAlphaNumeric(char c);
-
 
 #endif
