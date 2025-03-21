@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-Expr* newBinaryExpr(Expr* left, Expr* right, Token oper){
+Expr* newBinaryExpr(Expr* left,Token oper, Expr* right){
     Expr* expr = (Expr*)malloc(sizeof(Expr));
     if(!expr){
         fprintf(stderr, "Failed to allocate memory for binary expression");
@@ -48,7 +48,7 @@ Expr* newLiteralExpr(LiteralValue value, LiteralType type){
             expr->expression.literal.value.string = (char*)value.string;
             break;
         case LITERAL_NIL:
-            expr->expression.literal.value.nil = (char*)value.nil;
+            expr->expression.literal.value.nil = NULL;
             break;
         default:
             fprintf(stderr, "Invalid literal type");
@@ -91,9 +91,6 @@ void freeExpr(Expr* expr){
                 case LITERAL_STRING:
                     free(expr->expression.literal.value.string);
                     break;
-                case LITERAL_NIL:
-                    free(expr->expression.literal.value.nil);
-                    break;                    
             }
     }
     free(expr);

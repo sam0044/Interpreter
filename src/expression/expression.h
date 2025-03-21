@@ -44,7 +44,7 @@ typedef union LiteralValue{
     Number number;
     char* string;
     bool boolean;
-    char* nil;
+    void* nil;
 } LiteralValue;
 
 typedef struct LiteralExpr{
@@ -67,7 +67,7 @@ typedef struct Expr{
     } expression;
 } Expr;
 
-Expr* newBinaryExpr(Expr* left, Expr* right, Token oper);
+Expr* newBinaryExpr(Expr* left, Token oper, Expr* right);
 Expr* newGroupingExpr(Expr* expression);
 Expr* newLiteralExpr(LiteralValue value, LiteralType type);
 Expr* newUnaryExpr(Token oper, Expr* right);
