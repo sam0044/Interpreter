@@ -3,7 +3,6 @@
 
 #include "../expression/expression.h"
 
-void printExpr(Expr* expr);
-static void printValue(Expr* expr);
+void printValue(Expr* expr);
 
 #endif

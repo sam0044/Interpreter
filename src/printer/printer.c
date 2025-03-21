@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void printExpr(Expr* expr){
+static void printExpr(Expr* expr){
     switch(expr->type){
         case EXPR_BINARY:
             printf("(");
@@ -47,11 +47,11 @@ void printExpr(Expr* expr){
     }
 }
 
-static void printValue(Expr* expr){
+void printValue(Expr* expr){
     if(expr){
         printExpr(expr);
     }
     else{
-        fprintf(stderr, "Invalid expression type");
+        fprintf(stderr, "Expression is NULL");
     }
 }
